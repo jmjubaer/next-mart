@@ -17,6 +17,7 @@ import { logout } from "@/services/AuthService";
 
 export default function Navbar() {
     const { user, setIsLoading } = useUser();
+    console.log(user);
     const handleLogout = () => {
         logout();
         setIsLoading(true);
@@ -49,13 +50,13 @@ export default function Navbar() {
 
                     {user ? (
                         <>
-                            <Link href='/create-shop'>
-                                <Button
-                                    variant='outline'
-                                    className='rounded-full '>
-                                    Create Shop
-                                </Button>
-                            </Link>
+                            {!user?.hasShop && (
+                                <Link href='/create-shop'>
+                                    <Button className='rounded-full '>
+                                        Create Shop
+                                    </Button>
+                                </Link>
+                            )}
                             <DropdownMenu>
                                 <DropdownMenuTrigger>
                                     <Avatar>
