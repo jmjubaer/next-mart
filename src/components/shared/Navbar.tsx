@@ -76,7 +76,9 @@ export default function Navbar() {
                                     <DropdownMenuItem>My Shop</DropdownMenuItem>
                                     <DropdownMenuSeparator />
 
-                                    <DropdownMenuItem onClick={handleLogout}>
+                                    <DropdownMenuItem
+                                        className='hover:bg-red-500'
+                                        onClick={handleLogout}>
                                         <LogOut />
                                         <span>Log Out</span>
                                     </DropdownMenuItem>

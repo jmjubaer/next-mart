@@ -18,18 +18,23 @@ import { loginUser, reCaptchaTokenVerification } from "@/services/AuthService";
 import { toast } from "sonner";
 import { loginSchema } from "./loginValidation";
 import { useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useUser } from "@/context/UserContext";
 
 export default function LoginForm() {
     const form = useForm({
         resolver: zodResolver(loginSchema),
     });
+    const { setIsLoading } = useUser();
 
     const [reCaptchaStatus, setReCaptchaStatus] = useState(false);
 
     const {
         formState: { isSubmitting },
     } = form;
-
+    const searchParams = useSearchParams();
+    const redirectTo = searchParams.get("redirectPath");
+    const router = useRouter();
     const handleReCaptcha = async (value: string | null) => {
         try {
             const res = await reCaptchaTokenVerification(value!);
@@ -46,6 +51,12 @@ export default function LoginForm() {
             const res = await loginUser(data);
             if (res?.success) {
                 toast.success(res?.message);
+                setIsLoading(true);
+                if (redirectTo) {
+                    router.push(redirectTo);
+                } else {
+                    router.push("/");
+                }
             } else {
                 toast.error(res?.message);
             }
