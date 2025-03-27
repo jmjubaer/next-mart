@@ -14,13 +14,19 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useUser } from "@/context/UserContext";
 import { logout } from "@/services/AuthService";
+import { usePathname, useRouter } from "next/navigation";
+import { privetRoutes } from "@/constant";
 
 export default function Navbar() {
     const { user, setIsLoading } = useUser();
-    console.log(user);
+    const pathname = usePathname();
+    const router = useRouter();
     const handleLogout = () => {
         logout();
         setIsLoading(true);
+        if (privetRoutes.some((route) => pathname.match(route))) {
+            router.push("/");
+        }
     };
     return (
         <header className='border-b w-full'>
