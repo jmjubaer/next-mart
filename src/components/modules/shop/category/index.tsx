@@ -1,17 +1,44 @@
-"use client"
-import React from "react";
+"use client";
+import React, { useState } from "react";
 import CreateCategoryModal from "./CreateCategoryModal";
 import { NMTable } from "@/components/ui/core/NMTAble";
 import { Trash } from "lucide-react";
 import Image from "next/image";
 import { ColumnDef } from "@tanstack/react-table";
 import { TCategory } from "@/types/category";
+import { toast } from "sonner";
+import { deleteCategory } from "@/services/category";
+import DeleteConfirmationModal from "@/components/ui/core/NMModal/DeleteConfirmationModal";
 type TCategoriesProps = {
     categories: TCategory[];
 };
 const ManageCategories = ({ categories }: TCategoriesProps) => {
+    const [isModalOpen, setModalOpen] = useState(false);
+    const [selectedId, setSelectedId] = useState<string | null>(null);
+    const [selectedItem, setSelectedItem] = useState<string | null>(null);
+
     const handleDelete = (data: TCategory) => {
         console.log(data);
+        setSelectedId(data?._id);
+        setSelectedItem(data?.name);
+        setModalOpen(true);
+    };
+
+    const handleDeleteConfirm = async () => {
+        try {
+            if (selectedId) {
+                const res = await deleteCategory(selectedId);
+                console.log(res);
+                if (res.success) {
+                    toast.success(res.message);
+                    setModalOpen(false);
+                } else {
+                    toast.error(res.message);
+                }
+            }
+        } catch (err: any) {
+            console.error(err?.message);
+        }
     };
 
     const columns: ColumnDef<TCategory>[] = [
@@ -69,6 +96,12 @@ const ManageCategories = ({ categories }: TCategoriesProps) => {
             </div>
             <div className=''>
                 <NMTable data={categories} columns={columns} />
+                <DeleteConfirmationModal
+                    name={selectedItem}
+                    isOpen={isModalOpen}
+                    onOpenChange={setModalOpen}
+                    onConfirm={handleDeleteConfirm}
+                />
             </div>
         </div>
     );
