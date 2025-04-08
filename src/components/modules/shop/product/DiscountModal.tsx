@@ -1,7 +1,5 @@
 "use client";
 import { Button } from "@/components/ui/button";
-import NMImageUploader from "@/components/ui/core/NMImageUploader";
-import ImagePreviewer from "@/components/ui/core/NMImageUploader/NMImagePreview";
 import {
     Dialog,
     DialogContent,
@@ -18,31 +16,35 @@ import {
     FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { createBrand } from "@/services/brand";
-import { useState } from "react";
+import { addFlashSale } from "@/services/FlashSale";
+import { Dispatch, SetStateAction } from "react";
 import { FieldValues, SubmitHandler, useForm } from "react-hook-form";
 import { toast } from "sonner";
 
-const DiscountModal = () => {
-    const [imageFiles, setImageFiles] = useState<File[] | []>([]);
-    const [imagePreview, setImagePreview] = useState<string[] | []>([]);
+const DiscountModal = ({
+    selectedId,
+    setSelectedId,
+}: {
+    selectedId: string[];
+    setSelectedId: Dispatch<SetStateAction<string[] | []>>;
+}) => {
     const form = useForm();
     const {
         formState: { isSubmitting },
     } = form;
     const onSubmit: SubmitHandler<FieldValues> = async (data) => {
         try {
-            const fromData = new FormData();
-            fromData.append("data", JSON.stringify(data));
-            fromData.append("logo", imageFiles[0]);
-            const res = await createBrand(fromData);
-            console.log(res);
-            if (res?.success) {
-                toast.success(res?.message);
+            const modifiedData = {
+                products: [...selectedId],
+                discountPercentage: parseFloat(data?.discountPercentage),
+            };
+            const res = await addFlashSale(modifiedData);
+            if (res.success) {
+                toast.success(res.message);
+                setSelectedId([]);
                 form.reset();
-                setImageFiles([]);
             } else {
-                toast.error(res?.message);
+                toast.error(res.message);
             }
         } catch (err: any) {
             console.error(err);
@@ -51,23 +53,27 @@ const DiscountModal = () => {
     return (
         <Dialog>
             <DialogTrigger asChild>
-                <Button>Create Brand</Button>
+                <Button disabled={!selectedId?.length}>Add Flash Sale</Button>
             </DialogTrigger>
             <DialogContent>
                 <DialogHeader>
-                    <DialogTitle>Create Brand Form</DialogTitle>
+                    <DialogTitle>Add Flash Sale</DialogTitle>
                     <div className=''>
                         <Form {...form}>
                             <form onSubmit={form.handleSubmit(onSubmit)}>
                                 <FormField
                                     control={form.control}
-                                    name='name'
+                                    name='discountPercentage'
                                     render={({ field }) => (
                                         <FormItem>
-                                            <FormLabel>Name</FormLabel>
+                                            <FormLabel>
+                                                Discount Percentage
+                                            </FormLabel>
                                             <FormControl>
                                                 <Input
-                                                    type='text'
+                                                    type='number'
+                                                    min={0}
+                                                    max={100}
                                                     {...field}
                                                     value={field.value || ""}
                                                 />
@@ -76,26 +82,6 @@ const DiscountModal = () => {
                                         </FormItem>
                                     )}
                                 />
-                                <div className='flex justify-between gap-2 mt-4 items-center'>
-                                    {imagePreview.length > 0 ? (
-                                        <ImagePreviewer
-                                            setImageFiles={setImageFiles}
-                                            imagePreview={imagePreview}
-                                            setImagePreview={setImagePreview}
-                                            className='mt-8'
-                                        />
-                                    ) : (
-                                        <div className='mt-8'>
-                                            <NMImageUploader
-                                                setImageFiles={setImageFiles}
-                                                setImagePreview={
-                                                    setImagePreview
-                                                }
-                                                label='Upload logo'
-                                            />
-                                        </div>
-                                    )}
-                                </div>
                                 <Button
                                     // disabled={isSubmitting ? false : true}
                                     type='submit'

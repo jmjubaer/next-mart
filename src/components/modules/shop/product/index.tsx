@@ -9,11 +9,11 @@ import { TProduct } from "@/types";
 import { NMTable } from "@/components/ui/core/NMTAble";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useState } from "react";
+import DiscountModal from "./DiscountModal";
 
 const ManageProducts = ({ products }: { products: TProduct[] }) => {
     const router = useRouter();
     const [selectedId, setSelectedId] = useState<string[] | []>([]);
-    console.log(selectedId);
     const handleView = (product: TProduct) => {
         console.log("Viewing product:", product);
     };
@@ -155,6 +155,10 @@ const ManageProducts = ({ products }: { products: TProduct[] }) => {
                         size='sm'>
                         Add Product <Plus />
                     </Button>
+                    <DiscountModal
+                        selectedId={selectedId}
+                        setSelectedId={setSelectedId}
+                    />
                 </div>
             </div>
             <NMTable columns={columns} data={products || []} />
