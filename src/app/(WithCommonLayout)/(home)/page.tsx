@@ -1,9 +1,11 @@
 "use client";
 
+import HeroSection from "@/components/modules/home/heroSection";
+
 const HomePage = () => {
     return (
         <div>
-            <h1>Welcome To NextMart Home Page</h1>
+           <HeroSection/>
         </div>
     );
 };
